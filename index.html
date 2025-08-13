@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pickproof - Smart Affiliate Marketplace</title>
+    <!-- Tailwind CSS & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        :root {
+            --rainbow-1: #ff2d2d;
+            --rainbow-2: #ff8a2d;
+            --rainbow-3: #ffff2d;
+            --rainbow-4: #2dff2d;
+            --rainbow-5: #2dffff;
+            --rainbow-6: #2d2dff;
+            --rainbow-7: #8a2dff;
+        }
+        body {font-family: 'Poppins', sans-serif; background-color: #f8f9fa; min-height: 100vh; color: #333;}
+        .rainbow-gradient {background: linear-gradient(90deg, var(--rainbow-1) 0%, var(--rainbow-2) 15%, var(--rainbow-3) 30%, var(--rainbow-4) 45%, var(--rainbow-5) 60%, var(--rainbow-6) 75%, var(--rainbow-7) 90%);}
+        .rainbow-text {background: linear-gradient(90deg, rgba(255, 45, 45, 0.8) 0%, rgba(255, 138, 45, 0.8) 15%, rgba(255, 255, 45, 0.8) 30%, rgba(45, 255, 45, 0.8) 45%, rgba(45, 255, 255, 0.8) 60%, rgba(45, 45, 255, 0.8) 75%, rgba(138, 45, 255, 0.8) 90%); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 2px 4px rgba(0,0,0,0.1);}
+        .category-btn {transition: all 0.3s ease; border: 2px solid white;}
+        .category-btn:hover {transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: transparent;}
+        .product-card {transition: all 0.3s ease; border: 1px solid rgba(0,0,0,0.1);}
+        .product-card:hover {transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);}
+        .product-btn {background: linear-gradient(90deg, var(--rainbow-6) 0%, var(--rainbow-7) 100%);}
+        #adminPanel {transition: all 0.3s ease;}
+        .truncate-2 {overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;}
+        .truncate-1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+        [contenteditable="true"] {min-height: 40px; border: 1px dashed #ccc; padding: 5px; border-radius: 4px; color: #333; background-color: #fff;}
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md" aria-label="Main Navigation">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <h1 class="text-xl font-bold" aria-label="Pickproof logo"><span class="rainbow-text drop-shadow-md">Pi</span><span class="text-black">c</span><span class="rainbow-text drop-shadow-md">kproo</span><span class="text-black">f</span></h1>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="#" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" onclick="showSection('featured', event)">
+                            <span class="text-black">Featured</span>
+                        </a>
+                        <a href="#" class="border-transparent text-gray-900 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" onclick="showSection('categories', event)">
+                            <span class="text-black">Categories</span>
+                        </a>
+                        <a href="#" class="border-transparent text-gray-900 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" onclick="showSection('products', event)">
+                            <span class="text-black">All Products</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                    <div class="relative rounded-md shadow-sm">
+                        <input 
+                            type="text"
+                            class="block w-full rounded-md border-gray-300 pl-3 pr-10 py-2 text-gray-900 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            placeholder="Search products..."
+                            aria-label="Search products"
+                            id="searchBox"
+                            oninput="searchProducts(this.value)"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    <button id="adminToggle" class="ml-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" onclick="toggleAdminPanel()">
+                        Admin Panel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Hero Section -->
+    <div class="rainbow-gradient">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+                Discover Amazing Products
+            </h1>
+            <p class="mt-6 text-xl text-gray-800 max-w-3xl mx-auto">
+                Curated collections of the best products handpicked just for you
+            </p>
+            <div class="mt-10 flex justify-center">
+                <div class="rounded-md shadow">
+                    <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-gray-900 bg-white hover:bg-gray-100 md:py-4 md:text-lg md:px-10" onclick="showSection('categories', event)">
+                        Browse Categories
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Featured Section -->
+        <div id="featured" class="section-content">
+            <h2 class="text-2xl font-bold mb-6 rainbow-text">Featured Products</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" id="featuredProducts">
+                <!-- Featured products will be loaded here -->
+            </div>
+        </div>
+        <!-- Categories Section -->
+        <div id="categories" class="section-content hidden">
+            <h2 class="text-2xl font-bold mb-6 rainbow-text">Our Categories</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" id="categoriesList">
+                <!-- Categories will be loaded here -->
+            </div>
+        </div>
+        <!-- All Products Section -->
+        <div id="products" class="section-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold rainbow-text">All Products</h2>
+                <div class="relative">
+                    <select class="block appearance-none bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                        onchange="sortProducts(event)">
+                        <option value="featured">Sort by: Featured</option>
+                        <option value="priceLow">Sort by: Price Low to High</option>
+                        <option value="priceHigh">Sort by: Price High to Low</option>
+                        <option value="newest">Sort by: Newest</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="allProducts">
+                <!-- All products will be loaded here -->
+            </div>
+        </div>
+    </div>
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="fixed inset-y-0 right-0 w-96 bg-white shadow-xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-medium rainbow-text">Admin Panel</h3>
+                <button onclick="toggleAdminPanel()" class="text-gray-500 hover:text-gray-700" aria-label="Close admin panel">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="mb-6">
+                <h4 class="font-medium mb-3 rainbow-text">Add New Product</h4>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-900">Product Image</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                            <div class="space-y-1 text-center">
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="productImage" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none">
+                                        <span>Upload a file</span>
+                                        <input id="productImage" name="productImage" type="file" class="sr-only" onchange="previewImage(this)">
+                                    </label>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex justify-center" id="imagePreviewContainer" style="display: none;">
+                            <img id="imagePreview" src="#" alt="Preview of uploaded product image" class="h-40 object-contain" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-800">Product Title</label>
+                        <input type="text" id="productTitle" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-700 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Product Description</label>
+                        <textarea id="productDescription" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Affiliate Link</label>
+                        <input type="text" id="affiliateLink" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Price</label>
+                        <input type="number" id="productPrice" min="0" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Category</label>
+                        <div class="mt-1 flex">
+                            <select id="productCategory" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></select>
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onclick="addProduct()" id="addProductBtn" style="display:none;">
+                            Add Product
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-medium mb-3 rainbow-text">Manage Categories</h4>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">New Category Name</label>
+                        <input type="text" id="newCategory" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onclick="addCategory()" id="addCategoryBtn" style="display:none;">
+                            Add Category
+                        </button>
+                    </div>
+                    <div class="mt-4" id="currentCategories">
+                        <h5 class="text-sm font-medium text-gray-700 mb-2">Current Categories</h5>
+                        <ul class="space-y-2" id="categoriesListAdmin"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer class="bg-white"><div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><h3 class="text-lg font-bold"><span class="rainbow-text drop-shadow-md">Pi</span><span class="text-black">c</span><span class="rainbow-text drop-shadow-md">kproo</span><span class="text-black">f</span></h3><p class="mt-4 text-gray-700 text-sm">Your trusted source for curated products and honest reviews.</p></div><div><h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Quick Links</h3><ul class="mt-4 space-y-2"><li><a href="#" class="text-gray-600 hover:text-gray-900 text-sm">Home</a></li><li><a href="#" class="text-gray-600 hover:text-gray-900 text-sm">About Us</a></li><li><a href="#" class="text-gray-600 hover:text-gray-900 text-sm">Contact</a></li><li><a href="#" class="text-gray-600 hover:text-gray-900 text-sm">Privacy Policy</a></li></ul></div><div><h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Connect With Us</h3><div class="mt-4 flex space-x-6"><a href="#" class="text-gray-400 hover:text-gray-500" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a><a href="#" class="text-gray-400 hover:text-gray-500" aria-label="Instagram"><i class="fab fa-instagram"></i></a><a href="#" class="text-gray-400 hover:text-gray-500" aria-label="Twitter"><i class="fab fa-twitter"></i></a><a href="#" class="text-gray-400 hover:text-gray-500" aria-label="Pinterest"><i class="fab fa-pinterest"></i></a></div></div></div><div class="mt-8 pt-8 border-t border-gray-200 flex justify-between"><p class="text-gray-400 text-sm">© 2023 Pickproof. All rights reserved.</p><div class="flex space-x-6"><a href="#" class="text-gray-400 hover:text-gray-500 text-sm">Terms</a><a href="#" class="text-gray-400 hover:text-gray-500 text-sm">Privacy</a></div></div></div></footer>
+    <script>
+        // Data persistence helpers
+        function getStored(key, fallback) {
+            let item = localStorage.getItem(key);
+            return item ? JSON.parse(item) : fallback;
+        }
+        function setStored(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+        let products = [];
+        let categories = [];
+        let filteredProducts = null; // for search/filter
+        let isAdmin = false;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Restore admin session if previously logged in
+            isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+            categories = getStored('pickproofCategories', ["Electronics", "Fitness", "Home", "Fashion", "Beauty", "Kitchen"]);
+            products = getStored('pickproofProducts', []);
+            renderCategories();
+            renderCategoriesAdmin();
+            renderProducts();
+            setupAdminUI();
+        });
+        function setupAdminUI() {
+            // Show/hide admin toggle
+            document.getElementById('adminToggle').style.display = 'block';
+            // Hide admin-only buttons if not admin
+            document.getElementById('addProductBtn').style.display = isAdmin ? 'inline-flex' : 'none';
+            document.getElementById('addCategoryBtn').style.display = isAdmin ? 'inline-flex' : 'none';
+            // Hide admin panel if not admin
+            if (!isAdmin) {
+                document.getElementById('adminPanel').classList.add('translate-x-full');
+                document.getElementById('adminPanel').classList.remove('translate-x-0');
+            }
+        }
+        function showSection(sectionId, event) {
+            document.querySelectorAll('.section-content').forEach(section => section.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+            if (event) {
+                document.querySelectorAll('nav a').forEach(link => {
+                    link.classList.remove('border-indigo-500', 'text-gray-900');
+                    link.classList.add('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
+                });
+                event.currentTarget.classList.remove('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
+                event.currentTarget.classList.add('border-indigo-500', 'text-gray-900');
+            }
+        }
+        function toggleAdminPanel() {
+            if (!isAdmin) {
+                const input = prompt("Enter admin password:");
+                if (input === "pickproof123") { // CHANGE THIS TO YOUR OWN STRONG PASSWORD!
+                    isAdmin = true;
+                    sessionStorage.setItem('isAdmin', 'true');
+                    setupAdminUI();
+                    alert('Admin access granted.');
+                } else {
+                    alert("Incorrect password!");
+                    return;
+                }
+            }
+            // Now toggle the panel
+            const panel = document.getElementById('adminPanel');
+            const isHidden = panel.classList.contains('translate-x-full');
+            panel.classList.toggle('translate-x-full', !isHidden);
+            panel.classList.toggle('translate-x-0', isHidden);
+            const toggleButton = document.getElementById('adminToggle');
+            if (isHidden) {
+                toggleButton.textContent = 'Close Admin';
+                toggleButton.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                toggleButton.classList.add('bg-gray-600', 'hover:bg-gray-700');
+            } else {
+                toggleButton.textContent = 'Admin Panel';
+                toggleButton.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+                toggleButton.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            }
+        }
+        function previewImage(input) {
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const preview = document.getElementById('imagePreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        }
+        function addProduct() {
+            if (!isAdmin) return;
+            const title = document.getElementById('productTitle').value.trim();
+            const description = document.getElementById('productDescription').value.trim();
+            const category = document.getElementById('productCategory').value;
+            const affiliateLink = document.getElementById('affiliateLink').value.trim();
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const imageInput = document.getElementById('productImage');
+            if (!title || !description || !category || !affiliateLink || isNaN(price)) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            let imageSrc = 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e84bbce6-2100-4309-beda-05733d183f70.png';
+            if (imageInput.files[0]) {
+                imageSrc = document.getElementById('imagePreview').src;
+            }
+            const newProduct = {
+                id: Date.now(),
+                title, description, image: imageSrc, category, affiliateLink, price,
+                dateAdded: new Date().toISOString()
+            };
+            products.push(newProduct);
+            setStored('pickproofProducts', products);
+            renderProducts();
+            document.getElementById('productTitle').value = '';
+            document.getElementById('productDescription').value = '';
+            document.getElementById('affiliateLink').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+            imageInput.value = '';
+            alert('Product added successfully!');
+        }
+        function addCategory() {
+            if (!isAdmin) return;
+            const newCategory = document.getElementById('newCategory').value.trim();
+            if (!newCategory) {alert('Please enter a category name');return;}
+            if (categories.includes(newCategory)) {alert('This category already exists');return;}
+            categories.push(newCategory);
+            setStored('pickproofCategories', categories);
+            renderCategories();
+            renderCategoriesAdmin();
+            document.getElementById('newCategory').value = '';
+            alert('Category added successfully!');
+        }
+        function deleteCategory(category) {
+            if (!isAdmin) return;
+            if (confirm(`Are you sure you want to delete the "${category}" category? Products in this category won't be deleted but their category will be set to "Uncategorized".`)) {
+                categories = categories.filter(c => c !== category);
+                products.forEach(product => {
+                    if (product.category === category) product.category = "Uncategorized";
+                });
+                if (!categories.includes("Uncategorized")) categories.push("Uncategorized");
+                setStored('pickproofCategories', categories);
+                setStored('pickproofProducts', products);
+                renderCategories(); renderCategoriesAdmin(); renderProducts();
+            }
+        }
+        function renderCategories() {
+            const categoriesContainer = document.getElementById('categoriesList');
+            categoriesContainer.innerHTML = '';
+            categories.forEach(category => {
+                const categoryBtn = document.createElement('button');
+                categoryBtn.className = 'category-btn rounded-lg p-4 text-black font-medium text-center';
+                const colorIndex = categories.indexOf(category) % 7;
+                categoryBtn.style.backgroundColor = `var(--rainbow-${colorIndex + 1})`;
+                categoryBtn.textContent = category;
+                categoryBtn.onclick = function(event) {
+                    filterProductsByCategory(category, event);
+                };
+                categoriesContainer.appendChild(categoryBtn);
+            });
+        }
+        function renderCategoriesAdmin() {
+            const categoriesSelect = document.getElementById('productCategory');
+            const categoriesList = document.getElementById('categoriesListAdmin');
+            categoriesSelect.innerHTML = '';
+            categoriesList.innerHTML = '';
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoriesSelect.appendChild(option);
+                const listItem = document.createElement('li');
+                listItem.className = 'flex justify-between items-center bg-gray-50 px-3 py-2 rounded';
+                listItem.innerHTML = `
+                    <span>${category}</span>
+                    ${isAdmin ? `
+                    <button class="text-red-500 hover:text-red-700" onclick="deleteCategory('${category}')" aria-label="Delete ${category} category">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>` : ''}
+                `;
+                categoriesList.appendChild(listItem);
+            });
+        }
+        function renderProducts() {
+            const featuredContainer = document.getElementById('featuredProducts');
+            const allProductsContainer = document.getElementById('allProducts');
+            featuredContainer.innerHTML = '';
+            allProductsContainer.innerHTML = '';
+            let showProducts = filteredProducts || products;
+            products.slice(0, 3).forEach(product => featuredContainer.appendChild(createProductCard(product)));
+            showProducts.forEach(product => allProductsContainer.appendChild(createProductCard(product)));
+        }
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'product-card bg-white rounded-lg overflow-hidden shadow-sm flex flex-col';
+            card.innerHTML = `
+                <div class="p-4 flex flex-col h-full">
+                    <div class="aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg overflow-hidden">
+                        <img src="${product.image}" alt="${product.title} product image" class="w-full h-48 object-contain" onerror="this.src='https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/606bcf29-95e6-40a9-a17f-1a9eac92db30.png'">
+                    </div>
+                    <div class="mt-4 flex-1 flex flex-col">
+                        <h3 class="text-lg font-medium text-gray-800 truncate-1" title="${product.title}">${product.title}</h3>
+                        <p class="mt-1 text-sm text-gray-700 truncate-2" title="${product.description}">${product.description}</p>
+                        <div class="mt-2 flex justify-between items-center">
+                            <span class="text-xs px-2 py-1 bg-gray-100 rounded-full">${product.category}</span>
+                            <span class="text-sm font-semibold text-indigo-700">$${product.price !== undefined ? Number(product.price).toFixed(2) : 'N/A'}</span>
+                        </div>
+                        <div class="mt-4 flex justify-end">
+                            <a href="${product.affiliateLink}" target="_blank" rel="noopener" class="text-sm font-medium text-white px-3 py-1 rounded product-btn" aria-label="View deal for ${product.title}">
+                                View Deal
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+        function filterProductsByCategory(category, event) {
+            showSection('products', event);
+            filteredProducts = products.filter(product => product.category === category);
+            renderProducts();
+        }
+        function searchProducts(query) {
+            query = (query || '').toLowerCase();
+            if (!query) {
+                filteredProducts = null;
+            } else {
+                filteredProducts = products.filter(p =>
+                    p.title.toLowerCase().includes(query) ||
+                    p.description.toLowerCase().includes(query) ||
+                    p.category.toLowerCase().includes(query)
+                );
+            }
+            renderProducts();
+        }
+        function sortProducts(event) {
+            const value = event.target.value;
+            let sorted = [...(filteredProducts || products)];
+            if (value === 'priceLow') {
+                sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+            } else if (value === 'priceHigh') {
+                sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
+            } else if (value === 'newest') {
+                sorted.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+            } else {
+                sorted = [...(filteredProducts || products)];
+            }
+            filteredProducts = sorted;
+            renderProducts();
+        }
+    </script>
+</body>
+</html>
